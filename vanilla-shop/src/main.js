@@ -21,7 +21,7 @@ items 배열에 html 넣기
 4. join('')을 반드시 넣는다, 안넣으면 각각은 배열이 되므로 , 표시가 html 문서에 생긴다.
    이를 다시 하나의 문자열로 합칠 필요가 있다.
 */
-function displayItems(items) {
+function writeItems(items) {
   const container = document.querySelector('.items');
   container.insertAdjacentHTML(
     'afterbegin',
@@ -29,19 +29,70 @@ function displayItems(items) {
   );
 }
 
+//data item을 HTML 리스트 아이템으로 만들기
 function createHTMLString(item) {
   return `
-  <li class="item">
-        <img src=${item.image} alt="${item.type}" class="item__thumbnail" />
-        <span class="item__description">${item.gender},${item.size}</span>
+  <li class="item" data-type="${item.type}" data-color="${item.color}">
+    <img src="${item.image}" alt="${item.type}" class="item__thumbnail">
+    <span class="item__description">${item.gender}, ${item.size}</span>
   </li>
   `;
+}
+
+//invisble 제거하기
+function showAllItems() {
+  const itemElements = document.querySelectorAll('.item');
+  itemElements.forEach((itemElement) => {
+    itemElement.classList.remove('invisible');
+  });
+}
+
+// item의 key와 value가 일치하는 것만 display:none 클래스를 삭제 , 추가
+function updateItems(key, value) {
+  const itemElements = document.querySelectorAll('.item');
+  itemElements.forEach((item) => {
+    if (item.dataset[key] === value) {
+      item.classList.remove('invisible');
+    } else {
+      item.classList.add('invisible');
+    }
+  });
+}
+
+function onButtonClick(event) {
+  const dataset = event.target.dataset;
+  const key = dataset.key;
+  const value = dataset.value;
+
+  if (key == null || value == null) {
+    return;
+  }
+
+  updateItems(key, value);
+  //const filtered = items.filter((item) => item[key] === value);
+  //displayItems(filtered);
+}
+
+/*이벤트 위임(btn이 아닌 부모인 section에 걸기*/
+
+function setEventListeners() {
+  const logo = document.querySelector('.logo');
+  const buttons = document.querySelector('.buttons');
+
+  logo.addEventListener('click', () => {
+    showAllItems();
+  });
+
+  buttons.addEventListener('click', (event) => {
+    onButtonClick(event);
+  });
 }
 
 //main
 loadItems()
   .then((items) => {
-    displayItems(items);
-    // setEventListeners(items);
+    writeItems(items);
+    showAllItems();
+    setEventListeners();
   })
   .catch(console.log);
